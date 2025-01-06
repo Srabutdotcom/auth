@@ -1,4 +1,6 @@
+//@ts-self-types="../type/certificate.d.ts"
 import { Uint16, Uint24, Struct, Constrained, Extension, x509, HandshakeType, ContentType } from "./dep.ts"
+import { messageFromHandshake } from "./utils.js";
 
 export class CertificateEntry extends Uint8Array {
    static from(array) {
@@ -51,6 +53,9 @@ class Extensions extends Constrained {
 }
 
 export class Certificate extends Uint8Array {
+   static fromHandshake(handshake) {
+      return messageFromHandshake(handshake)
+   }
    static from(array) {
       const copy = array.slice();
       let offset = 0;

@@ -27,7 +27,8 @@ Deno.test("Certificate", () => {
       96 12 29 ac 91 87 b4 2b 4d e1 00 00`).byte)
 
    const certificateMsg_back = Certificate.from(certificateMsg.message).handshake;
+   const certificateMsg_back_0 = Certificate.fromHandshake(certificateMsg);
    assertEquals(certificateMsg.toString(), certificateMsg_back.toString())
+   assertEquals(certificateMsg.toString(), certificateMsg_back_0.toString())
 })
-
 
