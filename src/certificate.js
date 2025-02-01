@@ -37,7 +37,7 @@ class Extensions extends Constrained {
       const copy = Uint8Array.from(array);
       const lengthOf = Uint16.from(copy).value;
       if (!lengthOf) return new Extensions()
-      const extensions = parseItems(copy,2, lengthOf, Extension);
+      const extensions = parseItems(copy, 2, lengthOf, Extension);
       return new Extensions(...extensions)
    }
    constructor(...extensions) {
@@ -66,6 +66,10 @@ export class Certificate extends Uint8Array {
    }
    get handshake() { return HandshakeType.CERTIFICATE.handshake(this) }
    get record() { return ContentType.HANDSHAKE.tlsPlaintext(this.handshake) }
+
+   async verify() {
+      return await verifyCertificateEntries(this.certificateEntries)
+   }
 }
 
 class Certificate_request_context extends Constrained {
@@ -92,3 +96,25 @@ class Certificate_list extends Constrained {
       this.certificateEntries = certificateEntries
    }
 }
+
+export async function verify(first, last) {
+   const publicKey = await crypto.subtle.importKey("spki", last.publicKey.rawData, last.signatureAlgorithm, true, ["verify"])
+   const signature = first.signature
+   const data = first.tbs
+   const algoritma = first.signatureAlgorithm;
+   const result = await crypto.subtle.verify(
+      algoritma, publicKey, signature, data
+   )
+   return result;
+}
+
+export async function verifyCertificateEntries(certificateEntries) {
+   for (let i = 0; i < certificateEntries.length - 1; i++) {
+      const first = certificateEntries[i].x509;
+      const last = certificateEntries[i + 1].x509;
+      const valid = await verify(first, last);
+      if (!valid) return false
+   }
+   return true
+}
+
