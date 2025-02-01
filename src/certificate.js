@@ -1,10 +1,10 @@
 //@ts-self-types="../type/certificate.d.ts"
-import { Uint16, Uint24, Struct, Constrained, Extension, x509, HandshakeType, ContentType } from "./dep.ts"
+import { Uint16, Uint24, Struct, Constrained, Extension, x509, HandshakeType, ContentType, parseItems } from "./dep.ts"
 import { messageFromHandshake } from "./utils.js";
 
 export class CertificateEntry extends Uint8Array {
    static from(array) {
-      const copy = array.slice();
+      const copy = Uint8Array.from(array);
       let offset = 0
       const cert_data = Cert_data.from(copy.subarray(offset)); offset += cert_data.length;
       const extensions = Extensions.from(copy.subarray(offset));
@@ -22,7 +22,7 @@ export class CertificateEntry extends Uint8Array {
 
 class Cert_data extends Constrained {
    static from(array) {
-      const copy = array.slice();
+      const copy = Uint8Array.from(array);
       const lengthOf = Uint24.from(copy).value;
       return new Cert_data(copy.subarray(3, lengthOf + 3))
    }
@@ -34,16 +34,10 @@ class Cert_data extends Constrained {
 
 class Extensions extends Constrained {
    static from(array) {
-      const copy = array.slice();
-      const _lengthOf = Uint16.from(copy).value;
-      if (!_lengthOf) return new Extensions()
-      let offset = 2;
-      const extensions = [];
-      while (true) {
-         const extension = Extension.from(copy.subarray(offset)); offset += extension.length;
-         extensions.push(extension);
-         if (offset >= copy.length - 2) break;
-      }
+      const copy = Uint8Array.from(array);
+      const lengthOf = Uint16.from(copy).value;
+      if (!lengthOf) return new Extensions()
+      const extensions = parseItems(copy,2, lengthOf, Extension);
       return new Extensions(...extensions)
    }
    constructor(...extensions) {
@@ -57,7 +51,7 @@ export class Certificate extends Uint8Array {
       return messageFromHandshake(handshake)
    }
    static from(array) {
-      const copy = array.slice();
+      const copy = Uint8Array.from(array);
       let offset = 0;
       const certificate_request_context = Certificate_request_context.from(copy.subarray(offset));
       offset += certificate_request_context.length;
@@ -76,7 +70,7 @@ export class Certificate extends Uint8Array {
 
 class Certificate_request_context extends Constrained {
    static from(array) {
-      const copy = array.slice();
+      const copy = Uint8Array.from(array);
       const lengthOf = copy.at(0);
       return new Certificate_request_context(copy.subarray(1, lengthOf + 1))
    }
@@ -89,14 +83,8 @@ class Certificate_request_context extends Constrained {
 class Certificate_list extends Constrained {
    static from(array) {
       const copy = Uint8Array.from(array);
-      const _lengthOf = Uint24.from(copy).value;
-      let offset = 3;
-      const certificateEntries = []
-      while (true) {
-         const certificateEntry = CertificateEntry.from(copy.subarray(offset)); offset += certificateEntry.length;
-         certificateEntries.push(certificateEntry)
-         if (offset >= copy.length - 3) break;
-      }
+      const lengthOf = Uint24.from(copy).value;
+      const certificateEntries = parseItems(copy, 3, lengthOf, CertificateEntry)
       return new Certificate_list(...certificateEntries)
    }
    constructor(...certificateEntries) {
