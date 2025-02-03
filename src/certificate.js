@@ -1,5 +1,5 @@
 //@ts-self-types="../type/certificate.d.ts"
-import { Uint16, Uint24, Struct, Constrained, Extension, x509, HandshakeType, ContentType, parseItems } from "./dep.ts"
+import { Uint16, Uint24, Struct, Constrained, Extension, x509, HandshakeType, ContentType, parseItems, Handshake } from "./dep.ts"
 import { messageFromHandshake } from "./utils.js";
 
 export class CertificateEntry extends Uint8Array {
@@ -64,8 +64,8 @@ export class Certificate extends Uint8Array {
       this.certificate_request_context = certificate_request_context.opaque;
       this.certificateEntries = certificate_list.certificateEntries
    }
-   get handshake() { return HandshakeType.CERTIFICATE.handshake(this) }
-   get record() { return ContentType.HANDSHAKE.tlsPlaintext(this.handshake) }
+   get handshake() { return new Handshake(HandshakeType.CERTIFICATE, this) }
+   get record() { return this.handshake.record }
 
    async verify() {
       return await verifyCertificateEntries(this.certificateEntries)

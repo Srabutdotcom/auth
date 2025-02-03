@@ -1,5 +1,5 @@
 //@ts-self-types = "../type/certificateverify.d.ts"
-import { HandshakeType, Struct, Uint16, Constrained, SignatureScheme } from "./dep.ts";
+import { HandshakeType, Struct, Uint16, Constrained, SignatureScheme, Handshake } from "./dep.ts";
 import { messageFromHandshake } from "./utils.js";
 import { sha256, sha384, sha512 } from "./dep.ts"
 
@@ -22,8 +22,8 @@ export class CertificateVerify extends Uint8Array {
       this.algorithm = algorithm;
       this.signature = signature
    }
-   get handshake(){ return HandshakeType.CERTIFICATE_VERIFY.handshake(this)}
-   get record() { return ContentType.HANDSHAKE.tlsPlaintext(this.handshake) }
+   get handshake() { return new Handshake(HandshakeType.CERTIFICATE_VERIFY, this) }
+   get record() { return this.handshake.record }
 }
 
 export class Signature extends Constrained {

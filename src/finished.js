@@ -1,5 +1,5 @@
 //@ts-self-types="../type/finished.d.ts"
-import { ContentType, HandshakeType, Struct } from "./dep.ts";
+import { ContentType, Handshake, HandshakeType, Struct } from "./dep.ts";
 import { messageFromHandshake } from "./utils.js";
 import { sha256, sha384 } from "./dep.ts"
 
@@ -15,8 +15,8 @@ export class Finished extends Uint8Array {
       super(verify_data);
       this.verify_data = verify_data
    }
-   get handshake(){ return HandshakeType.FINISHED.handshake(this)}
-   get record() { return ContentType.HANDSHAKE.tlsPlaintext(this.handshake) }
+   get handshake() { return new Handshake(HandshakeType.FINISHED, this) }
+   get record() { return this.handshake.record }
 }
 
 export async function finished(finishedKey, sha = 256, ...messages) {
