@@ -1,5 +1,5 @@
 import { CertificateVerify, Signature, signatureFrom } from "../src/certificateverify.js";
-import { assertEquals, HexaDecimal, SignatureScheme, HandshakeType } from "../src/dep.ts"
+import { assertEquals, HexaDecimal, SignatureScheme, HandshakeType, Handshake } from "../src/dep.ts"
 
 Deno.test("CertificateVerify", ()=>{
    const certificateVerifyMsg = HexaDecimal.fromString(`0f 00 00 84 08 04 00 80 5a 74 7c
@@ -33,10 +33,10 @@ export const serverHelloMsg = HexaDecimal.fromString(
    20 95 fe 66 76 2b db f7 c6 72 e1 56 d6 cc 25 3b 83 3d f1 dd 69
    b1 b0 4e 75 1f 0f 00 2b 00 02 03 04`).byte
 
-export const encryptedExtensionsMsg = HandshakeType.ENCRYPTED_EXTENSIONS.handshake(HexaDecimal.fromString(`00 22 00 0a 00 14 00
+export const encryptedExtensionsMsg = new Handshake(HandshakeType.ENCRYPTED_EXTENSIONS,(HexaDecimal.fromString(`00 22 00 0a 00 14 00
       12 00 1d 00 17 00 18 00 19 01 00 01 01 01 02 01 03 01 04 00 1c
       00 02 40 01 00 00 00 00
-`).byte).byte
+`).byte)).byte
 
 export const certificateMsg = HexaDecimal.fromString(
    `0b 00 01 b9 00 00 01 b5 00 01 b0 30 82

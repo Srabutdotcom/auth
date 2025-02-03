@@ -1,5 +1,5 @@
 //@ts-self-types="../type/finished.d.ts"
-import { ContentType, Handshake, HandshakeType, Struct } from "./dep.ts";
+import { Handshake, HandshakeType, Struct } from "./dep.ts";
 import { messageFromHandshake } from "./utils.js";
 import { sha256, sha384 } from "./dep.ts"
 

@@ -1,5 +1,5 @@
 //@ts-self-types="../type/certificate.d.ts"
-import { Uint16, Uint24, Struct, Constrained, Extension, x509, HandshakeType, ContentType, parseItems, Handshake } from "./dep.ts"
+import { Uint16, Uint24, Struct, Constrained, Extension, x509, HandshakeType, parseItems, Handshake } from "./dep.ts"
 import { messageFromHandshake } from "./utils.js";
 
 export class CertificateEntry extends Uint8Array {
