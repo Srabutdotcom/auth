@@ -1,8 +1,8 @@
-import { Signature } from "../src/certificateverify.js";
-import { CertificateVerify } from "../src/certificateverify.js";
-import { signatureFrom } from "../src/certificateverify.js";
+import { Signature } from "../type/certificateverify.js";
+import { CertificateVerify } from "../type/certificateverify.js";
+import { signatureFrom } from "../type/certificateverify.js";
 import { HexaDecimal, SignatureScheme } from "../src/dep.ts";
-import { Finished, finished } from "../src/finished.js";
+import { Finished, finished } from "../type/finished.js";
 import { certificateMsg, clientHelloMsg, encryptedExtensionsMsg, rsaKey, serverHelloMsg } from "./certificateverify_test.js";
 import { assertEquals } from "../src/dep.ts";
 

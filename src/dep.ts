@@ -1,6 +1,7 @@
 export * from "@tls/struct"
 export * from "@tls/enum"
 export * from "@tls/handshake"
+export * from "@tls/extension"
 export * as x509 from "@peculiar/x509"
 export * from "@std/assert"
 export * from "@noble/hashes/sha2"

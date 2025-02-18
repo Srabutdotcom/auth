@@ -1,4 +1,4 @@
-import { CertificateVerify, Signature, signatureFrom } from "../src/certificateverify.js";
+import { CertificateVerify, Signature, signatureFrom } from "../type/certificateverify.js";
 import { assertEquals, HexaDecimal, SignatureScheme, HandshakeType, Handshake } from "../src/dep.ts"
 
 Deno.test("CertificateVerify", ()=>{

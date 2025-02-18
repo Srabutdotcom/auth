@@ -1,8 +1,42 @@
 //@ts-self-types="../type/certificate.d.ts"
-import { Uint16, Uint24, Struct, Constrained, Extension, x509, HandshakeType, parseItems, Handshake } from "./dep.ts"
-import { messageFromHandshake } from "./utils.js";
+import { Uint16, Uint24, Extension, x509, parseItems } from "./dep.ts"
+//import { messageFromHandshake } from "./utils.js";
 
 export class CertificateEntry extends Uint8Array {
+   #data
+   #extensions
+   #x509
+   static sanitize(array) {
+      const len_1 = Uint24.from(array).value;
+      if (len_1 > 2 ** 24 - 1) throw Error(`Max. certificate data length is 2^24-1`);
+      const len_2 = Uint16.from(array.subarray(len_1 + 3)).value;
+      if (len_2 > 2 ** 16 - 1) throw Error(`Max. extensions length is 2^16-1`);
+      return [array.slice(0, len_1 + len_2 + 5)]
+   }
+   static from(array) { return new CertificateEntry(array) }
+   constructor(...args) {
+      args = (args[0] instanceof Uint8Array) ? CertificateEntry.sanitize(args[0]) : args;
+      super(...args)
+   }
+   get data() {
+      if (this.#data) return this.#data
+      const lengthOf = Uint24.from(this).value;
+      this.#data = this.subarray(3, 3 + lengthOf);
+      return this.#data;
+   }
+   get x509() {
+      if (this.#x509) return this.#x509;
+      this.#x509 = new x509.X509Certificate(btoa(String.fromCharCode(...this.data)));
+      return this.#x509
+   }
+   get extensions() {
+      if (this.#extensions) return this.#extensions;
+      const lengthOf = Uint16.from(this.subarray(this.data.length + 3)).value;
+      this.#extensions = parseItems(this, this.data.length + 3, lengthOf, Extension);
+      return this.#extensions
+   }
+}
+/* export class CertificateEntry_0 extends Uint8Array {
    static from(array) {
       const copy = Uint8Array.from(array);
       let offset = 0
@@ -44,9 +78,42 @@ class Extensions extends Constrained {
       super(0, 2 ** 16 - 1, ...extensions);
       this.extensions = extensions
    }
-}
+} */
 
 export class Certificate extends Uint8Array {
+   #context
+   #list
+   static sanitize(array) {
+      const lengthOf_1 = array.at(0);
+      if (lengthOf_1 > 255) throw Error(`Context must less than 256 byte`)
+      const lengthOf_2 = Uint24.from(array.subarray(1 + lengthOf_1)).value;
+      if (lengthOf_1 > 16777215) throw Error(`Context must less than 16777215 byte`);
+      const output = array.slice(0, lengthOf_1 + lengthOf_2 + 4)
+      return [output]
+   }
+   static from(array) { return new Certificate(array) }
+   constructor(...args) {
+      args = (args[0] instanceof Uint8Array) ? Certificate.sanitize(args[0]) : args
+      super(...args)
+   }
+   get context() {
+      if (this.#context) return this.#context;
+      const lengthOf = this.at(0);
+      this.#context ||= this.subarray(1, 1 + lengthOf);
+      return this.#context;
+   }
+   get list() {
+      if (this.#list) return this.#list;
+      const lengthOf = Uint24.from(this.subarray(1 + this.context.length)).value;
+      this.#list ||= parseItems(this, this.#context.length + 4, lengthOf, CertificateEntry);
+      return this.#list;
+   }
+   async verify() {
+      return await verifyCertificateEntries([...this.list])
+   }
+}
+
+/* export class Certificate_0 extends Uint8Array {
    static fromHandshake(handshake) {
       return messageFromHandshake(handshake)
    }
@@ -68,7 +135,7 @@ export class Certificate extends Uint8Array {
    get record() { return this.handshake.record }
 
    async verify() {
-      return await verifyCertificateEntries(this.certificateEntries)
+      return await verifyCertificateEntries(this.list)
    }
 }
 
@@ -95,7 +162,7 @@ class Certificate_list extends Constrained {
       super(0, 2 ** 24 - 1, ...certificateEntries);
       this.certificateEntries = certificateEntries
    }
-}
+} */
 
 export async function verify(first, last) {
    const publicKey = await crypto.subtle.importKey("spki", last.publicKey.rawData, last.signatureAlgorithm, true, ["verify"])
@@ -108,13 +175,37 @@ export async function verify(first, last) {
    return result;
 }
 
-export async function verifyCertificateEntries(certificateEntries) {
-   for (let i = 0; i < certificateEntries.length - 1; i++) {
-      const first = certificateEntries[i].x509;
-      const last = certificateEntries[i + 1].x509;
-      const valid = await verify(first, last);
+async function verifyCertificateEntries(certificateEntries) {
+   //FIXME - 
+   if (certificateEntries.length == 1) {
+      const first = certificateEntries[0].x509;
+      if (!isSelfSigned(first)) return false;
+      if (isExpired(first)) return false
+      const valid = await verify(first, first)
       if (!valid) return false
+      return true
+   } else if (certificateEntries.length > 1) {
+      for (let i = 0; i < certificateEntries.length - 1; i++) {
+         const first = certificateEntries[i].x509;
+         if (isExpired(first)) return false;
+         const next = certificateEntries[i + 1].x509;
+         if (isExpired(next)) return false;
+         if (first.issuer !== next.subject) return false
+         const valid = await verify(first, next);
+         if (!valid) return false
+      }
+      return true
    }
-   return true
+   return false
+}
+
+function isSelfSigned(x509Certificate) {
+   return x509Certificate.issuer == x509Certificate.subject
+}
+
+function isExpired(x509Certificate) {
+   const { notAfter, notBefore } = x509Certificate
+   const today = new Date;
+   return notBefore > today && today > notAfter
 }
 
