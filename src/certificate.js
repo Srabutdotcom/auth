@@ -111,6 +111,13 @@ export class Certificate extends Uint8Array {
    async verify() {
       return await verifyCertificateEntries([...this.list])
    }
+   async publicKey(){
+      const cert = [...this.list].at(0).x509;
+      return await crypto.subtle.importKey("spki", cert.publicKey.rawData, 
+         {name: "RSA-PSS", hash: "SHA-256"}
+         /* cert.signatureAlgorithm */
+         , true, ["verify"])
+   }
 }
 
 /* export class Certificate_0 extends Uint8Array {
@@ -176,7 +183,6 @@ export async function verify(first, last) {
 }
 
 async function verifyCertificateEntries(certificateEntries) {
-   //FIXME - 
    if (certificateEntries.length == 1) {
       const first = certificateEntries[0].x509;
       if (!isSelfSigned(first)) return false;

@@ -1,44 +1,31 @@
-import { Handshake } from "../src/dep.ts";
 
 /**
- * Represents a `Finished` TLS handshake message, extending `Uint8Array`.
+ * Represents the Finished message in the TLS 1.3 handshake.
  */
 export class Finished extends Uint8Array {
-   /**
-    * Creates a `Finished` instance from a handshake message.
-    * @param {Handshake} handshake - The handshake message to create the `Finished` instance from.
-    * @returns {Finished} The resulting `Finished` instance.
-    */
-   static fromHandshake(handshake: Handshake): Finished;
- 
-   /**
-    * Creates a `Finished` instance from an array or array-like object.
-    * @param {Uint8Array} array - The array or array-like object to create the `Finished` instance from.
-    * @returns {Finished} The resulting `Finished` instance.
-    */
-   static from(array: Uint8Array): Finished;
- 
-   /**
-    * Constructs a new `Finished` instance.
-    * @param {Uint8Array} verify_data - The verification data for the `Finished` message.
-    */
-   constructor(verify_data: Uint8Array);
- 
-   /**
-    * The verification data associated with this `Finished` instance.
-    * @type {Uint8Array}
-    */
-   verify_data: Uint8Array;
- 
-   /**
-    * Gets the handshake representation of the `Finished` message.
-    * @returns {Uint8Array} The handshake message as a `Uint8Array`.
-    */
-   get handshake(): Uint8Array;
- 
-   /**
-    * Gets the record representation of the `Finished` message.
-    * @returns {Uint8Array} The record message as a `Uint8Array`.
-    */
-   get record(): Uint8Array;
- }
+  /**
+   * Creates a new instance of Finished from the provided arguments.
+   * @param args - The arguments used to construct the Finished message.
+   * @returns A new instance of Finished.
+   */
+  static from(...args: ConstructorParameters<typeof Uint8Array>): Finished;
+
+  /**
+   * Constructs a Finished message.
+   * @param args - The arguments used to initialize the Finished message.
+   */
+  constructor(...args: ConstructorParameters<typeof Uint8Array>);
+}
+
+/**
+ * Computes the Finished message for the TLS 1.3 handshake.
+ * @param finishedKey - The key used to generate the HMAC signature.
+ * @param sha - The hash algorithm to use (256 or 384).
+ * @param messages - The handshake messages from ClientHello to CertificateVerify used for the transcript hash.
+ * @returns A `Finished` instance containing the verify data.
+ */
+export function finished(
+  finishedKey: Uint8Array,
+  sha?: 256 | 384,
+  ...messages: Uint8Array[]
+): Promise<Finished>;

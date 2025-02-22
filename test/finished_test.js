@@ -1,9 +1,6 @@
-import { Signature } from "../type/certificateverify.js";
-import { CertificateVerify } from "../type/certificateverify.js";
-import { signatureFrom } from "../type/certificateverify.js";
-import { HexaDecimal, SignatureScheme } from "../src/dep.ts";
-import { Finished, finished } from "../type/finished.js";
-import { certificateMsg, clientHelloMsg, encryptedExtensionsMsg, rsaKey, serverHelloMsg } from "./certificateverify_test.js";
+import { HexaDecimal } from "../src/dep.ts";
+import { Finished, finished } from "../src/finished.js";
+import { certificateMsg, clientHelloMsg, encryptedExtensionsMsg, serverHelloMsg } from "./certificateverify_test.js";
 import { assertEquals } from "../src/dep.ts";
 
 const finishedMsg = HexaDecimal.fromString(
@@ -11,16 +8,7 @@ const finishedMsg = HexaDecimal.fromString(
    dc e7 1d f4 de da 4a b4 2c 30 95 72 cb 7f ff ee 54 54 b7 8f 07
    18`).byte
 
-const finishedMsg_0 = Finished.fromHandshake(finishedMsg);
-
-Deno.test("Finished", async () => {
-   const signature = await signatureFrom(clientHelloMsg, serverHelloMsg, encryptedExtensionsMsg, certificateMsg, rsaKey.privateKey, {name: "RSA-PSS", saltLength: 32});
-   const certificateVerify = new CertificateVerify(SignatureScheme.RSA_PSS_PSS_SHA256,new Signature(signature));
-   const serverHS_secret_fake = crypto.getRandomValues(new Uint8Array(32));
-   const _finished = await finished(serverHS_secret_fake, 256, certificateVerify);
-   const finishedBack = Finished.from(_finished);
-   assertEquals(_finished.toString(), finishedBack.toString())
-})
+const finishedMsg_0 = Finished.from(finishedMsg.slice(4));
 
 const hash = "SHA-256";
 const sha = parseInt(hash.split("-")[1]);
@@ -42,4 +30,4 @@ const finished_key = HexaDecimal.fromString(
    `00 8d 3b 66 f8 16 ea 55 9f 96 b5 37 e8 85
    c3 1f c0 68 bf 49 2c 65 2f 01 f2 88 a1 d8 cd c1 9f c8`).byte
 
-const finished_0 = await finished(finished_key, 256, clientHelloMsg, serverHelloMsg, encryptedExtensionsMsg, certificateMsg);
+const finished_0 = await finished(finished_key, 256, clientHelloMsg, serverHelloMsg, encryptedExtensionsMsg, certificateMsg, certificateVerifyMsg);

@@ -1,6 +1,6 @@
 {
   "name": "@tls/auth",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "exports": "./src/mod.ts",
   "publish": {
     "exclude": ["dist/"]
@@ -16,9 +16,10 @@
     "@noble/hashes": "npm:@noble/hashes@^1.7.1",
     "@peculiar/x509": "npm:@peculiar/x509@^1.12.3",
     "@std/assert": "jsr:@std/assert@^1.0.2",
-    "@tls/enum": "jsr:@tls/enum@^0.7.7",
+    "@tls/enum": "jsr:@tls/enum@^0.7.8",
     "@tls/extension": "jsr:@tls/extension@^0.3.9",
-    "@tls/handshake": "jsr:@tls/handshake@^0.0.8",
+    "@tls/handshake": "jsr:@tls/handshake@^0.0.9",
+    "@tls/keyexchange": "jsr:@tls/keyexchange@^0.2.9",
     "@tls/struct": "jsr:@tls/struct@^0.3.8",
     "asn1js": "npm:asn1js@^3.0.5"
   }
