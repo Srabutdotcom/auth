@@ -1,7 +1,6 @@
 import { verifyCertificateVerify } from "../src/certificateverify.js";
 import { CertificateVerify, createSignature } from "../src/certificateverify.js";
-import { assertEquals, HexaDecimal, SignatureScheme, Handshake, safeuint8array, Uint16 } from "../src/dep.ts"
-import { ClientHello } from "@tls/keyexchange"
+import { assertEquals, HexaDecimal, SignatureScheme, /* Handshake, */ safeuint8array, Uint16, HandshakeType, Uint24 } from "../src/dep.ts"
 
 Deno.test("CertificateVerify", () => {
    const certificateVerifyMsg = HexaDecimal.fromString(`0f 00 00 84 08 04 00 80 5a 74 7c
@@ -111,25 +110,14 @@ const jwk = {
 
 var privateKey = await crypto.subtle.importKey('jwk', jwk, { name: 'RSA-PSS', hash: 'SHA-256' }, true, ['sign'])
 
-export const rsaKey = await crypto.subtle.generateKey(
-   {
-      name: "RSASSA-PKCS1-v1_5",
-      hash: "SHA-256",     // SHA-1, SHA-256, SHA-384, or SHA-512
-      publicExponent: new Uint8Array([1, 0, 1]), // 0x03 or 0x010001
-      modulusLength: 1024, // 1024, 2048, or 4096
-   },
-   true,
-   ["sign", "verify"],
-)
-
 //SignatureScheme.RSA_PKCS1_SHA256
 
 const isValid = await verifyCertificateVerify(clientHelloMsg, serverHelloMsg, encryptedExtensionsMsg, certificateMsg, certificateVerifyMsg);
 
 const signature = await createSignature(clientHelloMsg, serverHelloMsg, encryptedExtensionsMsg, certificateMsg, privateKey, { name: "RSA-PSS", saltLength: 32 });
-const certificateVerifyMsg_0 = Handshake.fromCertificateVerify(safeuint8array(SignatureScheme.RSA_PSS_PSS_SHA256.byte, Uint16.fromValue(signature.length), signature));
+const certificateVerify = safeuint8array(SignatureScheme.RSA_PSS_PSS_SHA256.byte, Uint16.fromValue(signature.length), signature);
 
-const ch = ClientHello.from(clientHelloMsg); 
+const certificateVerifyMsg_0 = safeuint8array(HandshakeType.CERTIFICATE_VERIFY.byte, Uint24.fromValue(certificateVerify.length), certificateVerify)
 
 const isValid_0 = await verifyCertificateVerify(clientHelloMsg, serverHelloMsg, encryptedExtensionsMsg, certificateMsg, certificateVerifyMsg_0);
 
