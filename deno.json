@@ -16,8 +16,8 @@
     "@noble/hashes": "npm:@noble/hashes@^1.7.1",
     "@peculiar/x509": "npm:@peculiar/x509@^1.12.3",
     "@std/assert": "jsr:@std/assert@^1.0.2",
-    "@tls/enum": "jsr:@tls/enum@^0.8.0",
-    "@tls/extension": "jsr:@tls/extension@^0.4.1",
+    "@tls/enum": "jsr:@tls/enum@^0.8.1",
+    "@tls/extension": "jsr:@tls/extension@^0.4.3",
     "@tls/struct": "jsr:@tls/struct@^0.3.8",
     "asn1js": "npm:asn1js@^3.0.5"
   }

@@ -121,5 +121,7 @@ const certificateVerifyMsg_0 = safeuint8array(HandshakeType.CERTIFICATE_VERIFY.b
 
 const isValid_0 = await verifyCertificateVerify(clientHelloMsg, serverHelloMsg, encryptedExtensionsMsg, certificateMsg, certificateVerifyMsg_0);
 
+const _null = null;
+
 
 

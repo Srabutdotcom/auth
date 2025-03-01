@@ -152,7 +152,7 @@ export async function verifyCertificateVerify(
    clientHelloMsg, serverHelloMsg, encryptedExtensionsMsg, certificateMsg, certificateVerifyMsg
 ) {
    const { signature, algorithm: { algo } } = CertificateVerify.from(certificateVerifyMsg.slice(4));
-   const publicKey = await Certificate.from(certificateMsg.slice(4)).publicKey();
+   const publicKey = await Certificate.from(certificateMsg.slice(4)).publicKey(algo);
 
    const hash = hashFromAlgo(algo);
 
@@ -166,7 +166,10 @@ export async function verifyCertificateVerify(
    )
 
    return await crypto.subtle.verify(
-      algo, publicKey, signature, data
+      algo, //publicKey.algorithm,//
+      publicKey, 
+      signature, 
+      data
    )
 
    /**

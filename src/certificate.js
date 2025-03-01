@@ -111,12 +111,14 @@ export class Certificate extends Uint8Array {
    async verify() {
       return await verifyCertificateEntries([...this.list])
    }
-   async publicKey(){
+   async publicKey(algo) {
       const cert = [...this.list].at(0).x509;
-      return await crypto.subtle.importKey("spki", cert.publicKey.rawData, 
-         {name: "RSA-PSS", hash: "SHA-256"}
-         /* cert.signatureAlgorithm */
-         , true, ["verify"])
+      return await crypto.subtle.importKey(
+         "spki",
+         cert.publicKey.rawData,
+         { name: algo.name, hash: cert.signatureAlgorithm.hash },//cert.signatureAlgorithm,//cert.publicKey.algorithm, 
+         true,
+         ["verify"])
    }
 }
 
