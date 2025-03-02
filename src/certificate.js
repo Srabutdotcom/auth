@@ -116,7 +116,7 @@ export class Certificate extends Uint8Array {
       return await crypto.subtle.importKey(
          "spki",
          cert.publicKey.rawData,
-         { name: algo.name, hash: cert.signatureAlgorithm.hash },//cert.signatureAlgorithm,//cert.publicKey.algorithm, 
+         algo,//cert.signatureAlgorithm,//cert.publicKey.algorithm, 
          true,
          ["verify"])
    }
