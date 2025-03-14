@@ -1,9 +1,9 @@
-import { Certificate } from "./certificate.js";
+/* import { Certificate } from "./certificate.js";
 import { CertificateVerify } from "./certificateverify.js";
 import { HandshakeType, Uint24 } from "./dep.ts";
-import { Finished } from "./finished.js";
+import { Finished } from "./finished.js"; */
 
-export function messageFromHandshake(handshake) {
+/* export function messageFromHandshake(handshake) {
    const copy = Uint8Array.from(handshake);
    const type = HandshakeType.fromValue(copy.at(0));
    const lengthOf = Uint24.from(copy.subarray(1)).value;
@@ -13,7 +13,7 @@ export function messageFromHandshake(handshake) {
       case HandshakeType.CERTIFICATE: return Certificate.from(message).handshake
       case HandshakeType.FINISHED: return Finished.from(message).handshake
    }
-}
+} */
 
 export class BooleanPlus extends Boolean {
    #data;
