@@ -1,4 +1,5 @@
 import { SignatureScheme } from "../src/dep.ts";
+import { BooleanPlus, Transcript } from "../src/utils.js";
 
 /**
  * {@link CertificateVerify} https://www.rfc-editor.org/rfc/rfc8446#section-4.4.3
@@ -71,13 +72,11 @@ export function createSignature(
 /**
  * Verifies the signature in the CertificateVerify message using the provided handshake messages.
  *
- * @param clientHelloMsg - The ClientHello message in Uint8Array format.
- * @param serverHelloMsg - The ServerHello message in Uint8Array format.
- * @param encryptedExtensionsMsg - The EncryptedExtensions message in Uint8Array format.
- * @param certificateMsg - The Certificate message in Uint8Array format.
+ * @param transcript - Transcript containing clientHelloMsg, serverHelloMsg, encryptedExtensionsMsg, and certificateMsg.
  * @param certificateVerifyMsg - The CertificateVerify message in Uint8Array format.
  * @returns A promise that resolves to a boolean indicating whether the signature is valid.
  */
 export function verifyCertificateVerify(
-  transcriptMsg: Uint8Array
-): Promise<boolean>;
+  transcript: Transcript,
+  certificateVerifyMsg: Uint8Array,
+): Promise<BooleanPlus>;

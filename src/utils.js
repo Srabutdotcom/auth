@@ -19,8 +19,8 @@ import { HandshakeType, safeuint8array } from "./dep.ts";
 
 export class BooleanPlus extends Boolean {
    #data;
-   static toFalse(value){ return new BooleanPlus(false, value)}
-   static toTrue(value){ return new BooleanPlus(true, value)}
+   static toFalse(value) { return new BooleanPlus(false, value) }
+   static toTrue(value) { return new BooleanPlus(true, value) }
    /**
     * Creates an instance of BooleanWithInfo.
     * @param {boolean} value - The boolean value.
@@ -113,7 +113,7 @@ export class Transcript {
          this.#handshakes.push(handshake)
          return
       }
-      switch (handshake?.type??HandshakeType.from(handshake)) {
+      switch (handshake?.type ?? HandshakeType.from(handshake)) {
          case HandshakeType.SERVER_HELLO:
             this.#serverHelloMsg = handshake;
             break;
@@ -146,10 +146,10 @@ export class Transcript {
    get encryptedExtensionsMsg() {
       return this.#encryptExtsMsg
    }
-   get certificateMsg(){
+   get certificateMsg() {
       return this.#certificateMsg
    }
-   get certificateVerifyMsg(){
+   get certificateVerifyMsg() {
       return this.#certificateVerifyMsg
    }
 }

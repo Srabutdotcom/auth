@@ -114,10 +114,10 @@ var privateKey = await crypto.subtle.importKey('jwk', jwk, { name: 'RSA-PSS', ha
 
 //SignatureScheme.RSA_PKCS1_SHA256
 const transcript = new Transcript(
-   clientHelloMsg, serverHelloMsg, encryptedExtensionsMsg, certificateMsg, certificateVerifyMsg
+   clientHelloMsg, serverHelloMsg, encryptedExtensionsMsg, certificateMsg
 )
 
-const isValid = await verifyCertificateVerify(transcript);
+const isValid = await verifyCertificateVerify(transcript, certificateVerifyMsg);
 const inValid_0 = await verifyCertificateVerify_0(clientHelloMsg, serverHelloMsg, encryptedExtensionsMsg, certificateMsg, certificateVerifyMsg)
 
 const signature = await createSignature(clientHelloMsg, serverHelloMsg, encryptedExtensionsMsg, certificateMsg, privateKey, { name: "RSA-PSS", saltLength: 32 });
@@ -126,8 +126,8 @@ const certificateVerify = safeuint8array(SignatureScheme.RSA_PSS_PSS_SHA256.byte
 const certificateVerifyMsg_0 = safeuint8array(HandshakeType.CERTIFICATE_VERIFY.byte, Uint24.fromValue(certificateVerify.length), certificateVerify)
 
 
-const transcript_0 = new Transcript(clientHelloMsg, serverHelloMsg, encryptedExtensionsMsg, certificateMsg, certificateVerifyMsg_0)
-const isValid_1 = await verifyCertificateVerify(transcript_0);
+const transcript_0 = new Transcript(clientHelloMsg, serverHelloMsg, encryptedExtensionsMsg, certificateMsg)
+const isValid_1 = await verifyCertificateVerify(transcript_0, certificateVerifyMsg_0);
 const isValid_2 = await verifyCertificateVerify_0(clientHelloMsg, serverHelloMsg, encryptedExtensionsMsg, certificateMsg, certificateVerifyMsg_0);
 
 const _null = null;

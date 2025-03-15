@@ -149,9 +149,9 @@ export function hashFromAlgo(algo) {
 }
 
 export async function verifyCertificateVerify(
-   transcript
+   transcript, certificateVerifyMsg 
 ) {
-   const {clientHelloMsg, serverHelloMsg, encryptedExtensionsMsg, certificateMsg, certificateVerifyMsg }  = transcript;
+   const {clientHelloMsg, serverHelloMsg, encryptedExtensionsMsg, certificateMsg }  = transcript;
    
    const { signature, algorithm: { algo } } = CertificateVerify.from(certificateVerifyMsg.slice(4));
    const publicKey = await Certificate.from(certificateMsg.slice(4)).publicKey(algo.import);
@@ -167,12 +167,16 @@ export async function verifyCertificateVerify(
       transcriptHash
    )
 
-   return await crypto.subtle.verify(
+   const isTrue = await crypto.subtle.verify(
       algo.verify, //publicKey.algorithm,//
       publicKey, 
       signature, 
       data
    )
+
+   transcript.insert(certificateVerifyMsg)
+
+   return new BooleanPlus(isTrue, transcript)
 
    /**
     * RSA signatures MUST use an
