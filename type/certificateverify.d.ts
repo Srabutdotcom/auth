@@ -79,9 +79,5 @@ export function createSignature(
  * @returns A promise that resolves to a boolean indicating whether the signature is valid.
  */
 export function verifyCertificateVerify(
-  clientHelloMsg: Uint8Array,
-  serverHelloMsg: Uint8Array,
-  encryptedExtensionsMsg: Uint8Array,
-  certificateMsg: Uint8Array,
-  certificateVerifyMsg: Uint8Array,
+  transcriptMsg: Uint8Array
 ): Promise<boolean>;

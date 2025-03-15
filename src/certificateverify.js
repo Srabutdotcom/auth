@@ -149,7 +149,7 @@ export function hashFromAlgo(algo) {
 }
 
 export async function verifyCertificateVerify(
-   clientHelloMsg, serverHelloMsg, encryptedExtensionsMsg, certificateMsg, certificateVerifyMsg
+   transcriptMsg
 ) {
    const { signature, algorithm: { algo } } = CertificateVerify.from(certificateVerifyMsg.slice(4));
    const publicKey = await Certificate.from(certificateMsg.slice(4)).publicKey(algo.import);
@@ -157,7 +157,7 @@ export async function verifyCertificateVerify(
    const hash = hashFromAlgo(algo.verify);
 
    const transcriptHash = hash
-      .update(safeuint8array(clientHelloMsg, serverHelloMsg, encryptedExtensionsMsg, certificateMsg))
+      .update(transcriptMsg)
       .digest();
 
    const data = safeuint8array(
