@@ -149,15 +149,17 @@ export function hashFromAlgo(algo) {
 }
 
 export async function verifyCertificateVerify(
-   transcriptMsg
+   transcript
 ) {
+   const {clientHelloMsg, serverHelloMsg, encryptedExtensionsMsg, certificateMsg, certificateVerifyMsg }  = transcript;
+   
    const { signature, algorithm: { algo } } = CertificateVerify.from(certificateVerifyMsg.slice(4));
    const publicKey = await Certificate.from(certificateMsg.slice(4)).publicKey(algo.import);
-
+   
    const hash = hashFromAlgo(algo.verify);
 
    const transcriptHash = hash
-      .update(transcriptMsg)
+      .update(safeuint8array(clientHelloMsg, serverHelloMsg, encryptedExtensionsMsg, certificateMsg))
       .digest();
 
    const data = safeuint8array(
@@ -190,4 +192,30 @@ export async function verifyCertificateVerify(
    -  The digital signature received in the signature field of the
       CertificateVerify message 
    */
+}
+
+export async function verifyCertificateVerify_0(
+   clientHelloMsg, serverHelloMsg, encryptedExtensionsMsg, certificateMsg, certificateVerifyMsg
+) {
+   const { signature, algorithm: { algo } } = CertificateVerify.from(certificateVerifyMsg.slice(4));
+   const publicKey = await Certificate.from(certificateMsg.slice(4)).publicKey(algo.import);
+
+   const hash = hashFromAlgo(algo.verify);
+
+   const transcriptHash = hash
+      .update(safeuint8array(clientHelloMsg, serverHelloMsg, encryptedExtensionsMsg, certificateMsg))
+      .digest();
+
+   const data = safeuint8array(
+      leading,
+      transcriptHash
+   )
+
+
+   return await crypto.subtle.verify(
+      algo.verify, //publicKey.algorithm,//
+      publicKey, 
+      signature, 
+      data
+   )
 }

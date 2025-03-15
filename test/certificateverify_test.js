@@ -1,6 +1,8 @@
 import { verifyCertificateVerify } from "../src/certificateverify.js";
+import { verifyCertificateVerify_0 } from "../src/certificateverify.js";
 import { CertificateVerify, createSignature } from "../src/certificateverify.js";
 import { assertEquals, HexaDecimal, SignatureScheme, /* Handshake, */ safeuint8array, Uint16, HandshakeType, Uint24 } from "../src/dep.ts"
+import { Transcript } from "../src/utils.js";
 
 Deno.test("CertificateVerify", () => {
    const certificateVerifyMsg = HexaDecimal.fromString(`0f 00 00 84 08 04 00 80 5a 74 7c
@@ -111,15 +113,22 @@ const jwk = {
 var privateKey = await crypto.subtle.importKey('jwk', jwk, { name: 'RSA-PSS', hash: 'SHA-256' }, true, ['sign'])
 
 //SignatureScheme.RSA_PKCS1_SHA256
+const transcript = new Transcript(
+   clientHelloMsg, serverHelloMsg, encryptedExtensionsMsg, certificateMsg, certificateVerifyMsg
+)
 
-const isValid = await verifyCertificateVerify(clientHelloMsg, serverHelloMsg, encryptedExtensionsMsg, certificateMsg, certificateVerifyMsg);
+const isValid = await verifyCertificateVerify(transcript);
+const inValid_0 = await verifyCertificateVerify_0(clientHelloMsg, serverHelloMsg, encryptedExtensionsMsg, certificateMsg, certificateVerifyMsg)
 
 const signature = await createSignature(clientHelloMsg, serverHelloMsg, encryptedExtensionsMsg, certificateMsg, privateKey, { name: "RSA-PSS", saltLength: 32 });
 const certificateVerify = safeuint8array(SignatureScheme.RSA_PSS_PSS_SHA256.byte, Uint16.fromValue(signature.length), signature);
 
 const certificateVerifyMsg_0 = safeuint8array(HandshakeType.CERTIFICATE_VERIFY.byte, Uint24.fromValue(certificateVerify.length), certificateVerify)
 
-const isValid_0 = await verifyCertificateVerify(clientHelloMsg, serverHelloMsg, encryptedExtensionsMsg, certificateMsg, certificateVerifyMsg_0);
+
+const transcript_0 = new Transcript(clientHelloMsg, serverHelloMsg, encryptedExtensionsMsg, certificateMsg, certificateVerifyMsg_0)
+const isValid_1 = await verifyCertificateVerify(transcript_0);
+const isValid_2 = await verifyCertificateVerify_0(clientHelloMsg, serverHelloMsg, encryptedExtensionsMsg, certificateMsg, certificateVerifyMsg_0);
 
 const _null = null;
 

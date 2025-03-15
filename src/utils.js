@@ -3,6 +3,8 @@ import { CertificateVerify } from "./certificateverify.js";
 import { HandshakeType, Uint24 } from "./dep.ts";
 import { Finished } from "./finished.js"; */
 
+import { HandshakeType, safeuint8array } from "./dep.ts";
+
 /* export function messageFromHandshake(handshake) {
    const copy = Uint8Array.from(handshake);
    const type = HandshakeType.fromValue(copy.at(0));
@@ -73,5 +75,81 @@ export class BooleanPlus extends Boolean {
     */
    static from(obj) {
       return new BooleanWithInfo(obj.value, obj.data);
+   }
+}
+
+export class Transcript {
+   #handshakes = []
+   #clientHelloMsg = null;
+   #serverHelloMsg = null;
+   #encryptExtsMsg = null;
+   #certificateMsg = null;
+   #certificateVerifyMsg = null;
+
+   constructor(...handshakes) {
+      for (const handshake of handshakes) {
+         this.insert(handshake)
+      }
+   }
+   insertMany(...handshakes) {
+      for (const handshake of handshakes) {
+         this.insert(handshake)
+      }
+   }
+   insert(handshake) {
+      if (!this.#handshakes.length) {
+         if (HandshakeType.fromValue(handshake[0]) !== HandshakeType.CLIENT_HELLO) throw Error(`Expected ClientHello`);
+         this.#clientHelloMsg = handshake;
+         this.#handshakes.push(handshake)
+         return
+      }
+      if (handshake.isHRR) {
+         const hashClientHello1 = handshake.message.cipher.hash.create().update(this.#handshakes[0]).digest();
+         this.#handshakes[0] = safeuint8array(
+            HandshakeType.MESSAGE_HASH.byte,
+            Uint8Array.of(0, 0, hashClientHello1.length),
+            hashClientHello1
+         )
+         this.#handshakes.push(handshake)
+         return
+      }
+      switch (handshake?.type??HandshakeType.from(handshake)) {
+         case HandshakeType.SERVER_HELLO:
+            this.#serverHelloMsg = handshake;
+            break;
+         case HandshakeType.CLIENT_HELLO:
+            this.#clientHelloMsg = handshake;
+            break;
+         case HandshakeType.ENCRYPTED_EXTENSIONS:
+            this.#encryptExtsMsg = handshake;
+            break;
+         case HandshakeType.CERTIFICATE:
+            this.#certificateMsg = handshake;
+            break;
+         case HandshakeType.CERTIFICATE_VERIFY:
+            this.#certificateVerifyMsg = handshake;
+            break;
+         default:
+            break;
+      }
+      this.#handshakes.push(handshake);
+   }
+   get byte() {
+      return safeuint8array(...this.#handshakes)
+   }
+   get clientHelloMsg() {
+      return this.#clientHelloMsg
+   }
+   get serverHelloMsg() {
+      return this.#serverHelloMsg
+   }
+   get encryptedExtensionsMsg() {
+      return this.#encryptExtsMsg
+   }
+   get certificateMsg(){
+      return this.#certificateMsg
+   }
+   get certificateVerifyMsg(){
+      return this.#certificateVerifyMsg
    }
 }
