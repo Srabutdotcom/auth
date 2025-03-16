@@ -3,7 +3,7 @@ import { CertificateVerify } from "./certificateverify.js";
 import { HandshakeType, Uint24 } from "./dep.ts";
 import { Finished } from "./finished.js"; */
 
-import { HandshakeType, safeuint8array } from "./dep.ts";
+import { Cipher, HandshakeType, safeuint8array } from "./dep.ts";
 
 /* export function messageFromHandshake(handshake) {
    const copy = Uint8Array.from(handshake);
@@ -80,11 +80,14 @@ export class BooleanPlus extends Boolean {
 
 export class Transcript {
    #handshakes = []
+   #message_hash = null;
+   #helloRetryRequestMsg = null;
    #clientHelloMsg = null;
    #serverHelloMsg = null;
    #encryptExtsMsg = null;
    #certificateMsg = null;
    #certificateVerifyMsg = null;
+   #finishedMsg = null;
 
    constructor(...handshakes) {
       for (const handshake of handshakes) {
@@ -104,13 +107,16 @@ export class Transcript {
          return
       }
       if (handshake.isHRR) {
-         const hashClientHello1 = handshake.message.cipher.hash.create().update(this.#handshakes[0]).digest();
+         const hash = handshake?.message?.cipher?.hash ?? Cipher.from(handshake.subarray(39 + handshake.at(38))).hash
+         const hashClientHello1 = hash.create().update(this.#handshakes[0]).digest();
          this.#handshakes[0] = safeuint8array(
             HandshakeType.MESSAGE_HASH.byte,
             Uint8Array.of(0, 0, hashClientHello1.length),
             hashClientHello1
          )
          this.#handshakes.push(handshake)
+         this.#message_hash = this.#handshakes.at(0);
+         this.#helloRetryRequestMsg = this.#handshakes.at(1);
          return
       }
       switch (handshake?.type ?? HandshakeType.from(handshake)) {
@@ -129,6 +135,9 @@ export class Transcript {
          case HandshakeType.CERTIFICATE_VERIFY:
             this.#certificateVerifyMsg = handshake;
             break;
+         case HandshakeType.FINISHED:
+            this.#finishedMsg = handshake;
+            break;
          default:
             break;
       }
@@ -136,6 +145,12 @@ export class Transcript {
    }
    get byte() {
       return safeuint8array(...this.#handshakes)
+   }
+   get messageHash(){
+      return this.#message_hash;
+   }
+   get helloRetryRequestMsg(){
+      return this.#helloRetryRequestMsg;
    }
    get clientHelloMsg() {
       return this.#clientHelloMsg
@@ -151,5 +166,8 @@ export class Transcript {
    }
    get certificateVerifyMsg() {
       return this.#certificateVerifyMsg
+   }
+   get finishedMsg(){
+      return this.#finishedMsg;
    }
 }

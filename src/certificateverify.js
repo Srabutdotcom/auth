@@ -1,5 +1,5 @@
 //@ts-self-types = "../type/certificateverify.d.ts"
-import { Struct, Uint16, SignatureScheme, safeuint8array } from "./dep.ts";
+import { Struct, Uint16, SignatureScheme, safeuint8array, Cipher } from "./dep.ts";
 import { BooleanPlus } from "./utils.js";
 import { sha256, sha384, sha512 } from "./dep.ts"
 import { Certificate } from "./certificate.js";
@@ -149,16 +149,16 @@ export function hashFromAlgo(algo) {
 }
 
 export async function verifyCertificateVerify(
-   transcript, certificateVerifyMsg 
+   transcript, certificateVerifyMsg
 ) {
-   const { certificateMsg }  = transcript;
-   
+   const { serverHelloMsg, certificateMsg } = transcript;
+
    const { signature, algorithm: { algo } } = CertificateVerify.from(certificateVerifyMsg.slice(4));
    const publicKey = await Certificate.from(certificateMsg.slice(4)).publicKey(algo.import);
-   
-   const hash = hashFromAlgo(algo.verify);
 
-   const transcriptHash = hash
+   const hash = serverHelloMsg?.message?.cipher?.hash ?? Cipher.from(serverHelloMsg.subarray(39 + serverHelloMsg.at(38))).hash
+
+   const transcriptHash = hash.create()
       .update(transcript.byte)
       .digest();
 
@@ -169,8 +169,8 @@ export async function verifyCertificateVerify(
 
    const isTrue = await crypto.subtle.verify(
       algo.verify, //publicKey.algorithm,//
-      publicKey, 
-      signature, 
+      publicKey,
+      signature,
       data
    )
 
@@ -218,8 +218,8 @@ export async function verifyCertificateVerify_0(
 
    return await crypto.subtle.verify(
       algo.verify, //publicKey.algorithm,//
-      publicKey, 
-      signature, 
+      publicKey,
+      signature,
       data
    )
 }

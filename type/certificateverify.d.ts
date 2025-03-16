@@ -72,9 +72,9 @@ export function createSignature(
 /**
  * Verifies the signature in the CertificateVerify message using the provided handshake messages.
  *
- * @param transcript - Transcript containing clientHelloMsg, serverHelloMsg, encryptedExtensionsMsg, and certificateMsg.
+ * @param transcript - Transcript containing messageHash, helloRetryRequestMsg, clientHelloMsg, serverHelloMsg, encryptedExtensionsMsg, certificateRequestMsg, and certificateMsg.
  * @param certificateVerifyMsg - The CertificateVerify message in Uint8Array format.
- * @returns A promise that resolves to a boolean indicating whether the signature is valid.
+ * @returns A promise that resolves to a boolean indicating whether the signature is valid and value property containing transcript (including certificateVerifyMsg).
  */
 export function verifyCertificateVerify(
   transcript: Transcript,
