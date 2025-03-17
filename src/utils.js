@@ -171,3 +171,31 @@ export class Transcript {
       return this.#finishedMsg;
    }
 }
+
+export async function hmacKey(key, sha) {
+   return await crypto.subtle.importKey(
+      "raw",
+      key,
+      {
+         name: "HMAC",
+         hash: { name: `SHA-${sha}` },
+      },
+      true,
+      ["sign", "verify"]
+   );
+}
+
+export async function hmacWeb(key, msg, sha) {
+   return new Uint8Array(await hmacWebBuffer(key, msg, sha))
+}
+
+async function hmacWebBuffer(key, msg, sha){
+   return await crypto.subtle.sign(
+      { name: "HMAC" },
+      await hmacKey(key, sha),
+      msg// await crypto.subtle.digest(`SHA-${sha}`, msg)
+   )
+}
+
+
+

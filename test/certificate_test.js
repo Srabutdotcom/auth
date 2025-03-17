@@ -69,6 +69,9 @@ const certChain = Uint8Array.of(/* 11,0,15,172, */0,0,15,168,0,5,36,48,130,5,32,
 const backChain = Certificate.from(certChain);
 const verifyChain = await backChain.verify();
 
+const blackCert = new Certificate;
+debugger;
+
 
 
 

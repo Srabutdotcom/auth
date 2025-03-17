@@ -1,6 +1,6 @@
 {
   "name": "@tls/auth",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "exports": "./src/mod.ts",
   "publish": {
     "exclude": ["dist/"]
@@ -15,6 +15,9 @@
   "imports": {
     "@noble/hashes": "npm:@noble/hashes@^1.7.1",
     "@peculiar/x509": "npm:@peculiar/x509@^1.12.3",
+    "@stablelib/hmac": "npm:@stablelib/hmac@^2.0.1",
+    "@stablelib/sha256": "npm:@stablelib/sha256@^2.0.1",
+    "@stablelib/sha384": "npm:@stablelib/sha384@^2.0.1",
     "@std/assert": "jsr:@std/assert@^1.0.2",
     "@tls/enum": "jsr:@tls/enum@^0.9.0",
     "@tls/extension": "jsr:@tls/extension@^0.4.7",

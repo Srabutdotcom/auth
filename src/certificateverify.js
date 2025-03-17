@@ -3,6 +3,7 @@ import { Struct, Uint16, SignatureScheme, safeuint8array, Cipher } from "./dep.t
 import { BooleanPlus } from "./utils.js";
 import { sha256, sha384, sha512 } from "./dep.ts"
 import { Certificate } from "./certificate.js";
+import { DERSignature } from "./dersignature/der.js";
 
 /**
  * {@link <CertificateVerify>} https://www.rfc-editor.org/rfc/rfc8446#section-4.4.3
@@ -33,7 +34,8 @@ export class CertificateVerify extends Uint8Array {
    get signature() {
       if (this.#signature) return this.#signature;
       const lengthOf = Uint16.from(this.subarray(2)).value;
-      this.#signature ||= this.subarray(4, 4 + lengthOf);
+      const data = this.subarray(4, 4 + lengthOf)
+      this.#signature ||= this.algorithm.name.startsWith("ECDSA") ? DERSignature.from(data).rs : data;
       return this.#signature;
    }
 }
