@@ -26,7 +26,7 @@ export class CertificateEntry extends Uint8Array {
    }
    get x509() {
       if (this.#x509) return this.#x509;
-      this.#x509 = new x509.X509Certificate(btoa(String.fromCharCode(...this.data)));
+      this.#x509 = new x509.X509Certificate(this.data)//(btoa(String.fromCharCode(...this.data)));
       return this.#x509
    }
    get extensions() {
@@ -174,6 +174,8 @@ class Certificate_list extends Constrained {
 } */
 
 export async function verify(first, last) {
+   return await first.verify(last);
+   /* const alternative = await first.verify({publicKey: last.publicKey})
    const publicKey = await crypto.subtle.importKey("spki", last.publicKey.rawData, last.signatureAlgorithm, true, ["verify"])
    const signature = first.signature
    const data = first.tbs
@@ -181,7 +183,7 @@ export async function verify(first, last) {
    const result = await crypto.subtle.verify(
       algoritma, publicKey, signature, data
    )
-   return result;
+   return result; */
 }
 
 async function verifyCertificateEntries(certificateEntries) {

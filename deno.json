@@ -1,6 +1,6 @@
 {
   "name": "@tls/auth",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "exports": "./src/mod.ts",
   "publish": {
     "exclude": ["dist/"]
@@ -13,6 +13,8 @@
     }
   },
   "imports": {
+    "@aicone/pem": "jsr:@aicone/pem@^0.1.9",
+    "@lapo/asn1js": "npm:@lapo/asn1js@^2.0.4",
     "@noble/hashes": "npm:@noble/hashes@^1.7.1",
     "@peculiar/x509": "npm:@peculiar/x509@^1.12.3",
     "@stablelib/hmac": "npm:@stablelib/hmac@^2.0.1",
