@@ -1,4 +1,4 @@
-import { HexaDecimal } from "../src/dep.ts";
+import { Byte } from "../src/dep.ts";
 import { Certificate } from "../src/certificate.js";
 import { assertEquals } from "../src/dep.ts";
 
@@ -32,7 +32,7 @@ import { assertEquals } from "../src/dep.ts";
    assertEquals(certificateMsg.toString(), certificateMsg_back_0.toString())
 }) */
 
-const cert = HexaDecimal.fromString(`00 00 01 b5 00 01 b0 30 82
+const cert = Byte.fromHex(`00 00 01 b5 00 01 b0 30 82
    01 ac 30 82 01 15 a0 03 02 01 02 02 01 02 30 0d 06 09 2a 86 48
    86 f7 0d 01 01 0b 05 00 30 0e 31 0c 30 0a 06 03 55 04 03 13 03
    72 73 61 30 1e 17 0d 31 36 30 37 33 30 30 31 32 33 35 39 5a 17
@@ -53,7 +53,7 @@ const cert = HexaDecimal.fromString(`00 00 01 b5 00 01 b0 30 82
    51 56 72 60 96 fd 33 5e 5e 67 f2 db f1 02 70 2e 60 8c ca e6 be
    c1 fc 63 a4 2a 99 be 5c 3e b7 10 7c 3c 54 e9 b9 eb 2b d5 20 3b
    1c 3b 84 e0 a8 b2 f7 59 40 9b a3 ea c9 d9 1d 40 2d cc 0c c8 f8
-   96 12 29 ac 91 87 b4 2b 4d e1 00 00`).byte;
+   96 12 29 ac 91 87 b4 2b 4d e1 00 00`);
 
 /**
  * If the Issuer and Subject are the same, the certificate is self-signed (root CA). Otherwise, it's an intermediate or leaf certificate.

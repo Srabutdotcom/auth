@@ -1,5 +1,5 @@
 import { X509Certificate } from "@peculiar/x509";
-import { Extension } from "@tls/extension";
+import { Extension } from "../src/dep.ts"
 
 /**
  * Represents a Certificate Entry in TLS 1.3.

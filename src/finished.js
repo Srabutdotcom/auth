@@ -1,5 +1,5 @@
 //@ts-self-types="../type/finished.d.ts"
-import { safeuint8array } from "./dep.ts";
+import { unity } from "./dep.ts";
 import { sha256, sha384 } from "./dep.ts"
 
 export class Finished extends Uint8Array {
@@ -42,7 +42,7 @@ export async function finished(finishedKey, sha = 256, ...messages) {
       sha == 384 ? sha384.create() : sha256.create();
 
    const transcriptHash = hash
-      .update(safeuint8array(...messages))
+      .update(unity(...messages))
       .digest();
 
    const verify_data = await crypto.subtle.sign(

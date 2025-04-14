@@ -1,7 +1,7 @@
 //LINK https://github.com/libbitcoin/libbitcoin-system/wiki/ECDSA-and-DER-Signatures
 //LINK https://www.rfc-editor.org/rfc/rfc3279#page-7
 
-import { safeuint8array } from "../dep.ts";
+import { unity } from "../dep.ts";
 
 /* 
 30 - DER prefix
@@ -47,6 +47,6 @@ export class DERSignature extends Uint8Array {
       return this.#s
    }
    get rs() {
-      return safeuint8array(this.r, this.s)
+      return unity(this.r, this.s)
    }
 }

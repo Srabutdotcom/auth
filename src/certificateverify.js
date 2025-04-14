@@ -1,5 +1,5 @@
 //@ts-self-types = "../type/certificateverify.d.ts"
-import { Struct, Uint16, SignatureScheme, safeuint8array, Cipher } from "./dep.ts";
+import { Uint16, SignatureScheme, unity, Cipher } from "./dep.ts";
 import { BooleanPlus } from "./utils.js";
 import { sha256, sha384, sha512 } from "./dep.ts"
 import { Certificate } from "./certificate.js";
@@ -40,58 +40,6 @@ export class CertificateVerify extends Uint8Array {
    }
 }
 
-/* export class CertificateVerify_0 extends Uint8Array {
-   static fromHandshake(handshake) {
-      return messageFromHandshake(handshake)
-   }
-   static from(array) {
-      const copy = Uint8Array.from(array);
-      const algorithm = SignatureScheme.from(copy.subarray());
-      const signature = Signature.from(copy.subarray(2))
-      return new CertificateVerify(algorithm, signature)
-   }
-   constructor(algorithm, signature) {
-      const struct = new Struct(
-         algorithm.Uint16,
-         signature
-      )
-      super(struct);
-      this.algorithm = algorithm;
-      this.signature = signature
-   }
-   get handshake() { return new Handshake(HandshakeType.CERTIFICATE_VERIFY, this) }
-   get record() { return this.handshake.record }
-} */
-
-/* export class Signature extends Uint8Array {
-   static sanitize(array) {
-      try {
-         const lengthOf = Uint16.from(array).value;
-         if (array.length < 2 + lengthOf) return BooleanPlus.toFalse(Error(`the length of signature is less than expected`))
-         return [array.slice(0, 2 + lengthOf)];
-      } catch (error) {
-         return BooleanPlus.toFalse(error)
-      }
-   }
-   static from(array) { return new Signature(array) }
-   constructor(...args) {
-      args = (args[0] instanceof Uint8Array) ? CertificateVerify.sanitize(args[0]).data : args
-      super(...args)
-   }
-}
-
-export class Signature_0 extends Constrained {
-   static from(array) {
-      const copy = Uint8Array.from(array);
-      const lengthOf = Uint16.from(copy).value;
-      return new Signature(copy.subarray(2, 2 + lengthOf))
-   }
-   constructor(opaque) {
-      super(0, 2 ** 16 - 1, opaque)
-      this.opaque = opaque
-   }
-} */
-
 export var leading = Uint8Array.of(
    //NOTE 64 space characters 
    32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32,
@@ -112,7 +60,7 @@ export async function createSignature(clientHelloMsg, serverHelloMsg, encryptedE
       .update(certificateMsg)
       .digest();
 
-   const data = Struct.createFrom(
+   const data = unity(
       leading,
       transcriptHash
    )
@@ -164,7 +112,7 @@ export async function verifyCertificateVerify(
       .update(transcript.byte)
       .digest();
 
-   const data = safeuint8array(
+   const data = unity(
       leading,
       transcriptHash
    )
@@ -209,10 +157,10 @@ export async function verifyCertificateVerify_0(
    const hash = hashFromAlgo(algo.verify);
 
    const transcriptHash = hash
-      .update(safeuint8array(clientHelloMsg, serverHelloMsg, encryptedExtensionsMsg, certificateMsg))
+      .update(unity(clientHelloMsg, serverHelloMsg, encryptedExtensionsMsg, certificateMsg))
       .digest();
 
-   const data = safeuint8array(
+   const data = unity(
       leading,
       transcriptHash
    )

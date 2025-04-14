@@ -1,21 +1,5 @@
-/* import { Certificate } from "./certificate.js";
-import { CertificateVerify } from "./certificateverify.js";
-import { HandshakeType, Uint24 } from "./dep.ts";
-import { Finished } from "./finished.js"; */
 
-import { Cipher, HandshakeType, safeuint8array } from "./dep.ts";
-
-/* export function messageFromHandshake(handshake) {
-   const copy = Uint8Array.from(handshake);
-   const type = HandshakeType.fromValue(copy.at(0));
-   const lengthOf = Uint24.from(copy.subarray(1)).value;
-   const message = copy.subarray(4, lengthOf + 4)
-   switch (type) {
-      case HandshakeType.CERTIFICATE_VERIFY: return CertificateVerify.from(message).handshake
-      case HandshakeType.CERTIFICATE: return Certificate.from(message).handshake
-      case HandshakeType.FINISHED: return Finished.from(message).handshake
-   }
-} */
+import { Cipher, HandshakeType, unity } from "./dep.ts";
 
 export class BooleanPlus extends Boolean {
    #data;
@@ -109,7 +93,7 @@ export class Transcript {
       if (handshake.isHRR) {
          const hash = handshake?.message?.cipher?.hash ?? Cipher.from(handshake.subarray(39 + handshake.at(38))).hash
          const hashClientHello1 = hash.create().update(this.#handshakes[0]).digest();
-         this.#handshakes[0] = safeuint8array(
+         this.#handshakes[0] = unity(
             HandshakeType.MESSAGE_HASH.byte,
             Uint8Array.of(0, 0, hashClientHello1.length),
             hashClientHello1
@@ -144,7 +128,7 @@ export class Transcript {
       this.#handshakes.push(handshake);
    }
    get byte() {
-      return safeuint8array(...this.#handshakes)
+      return unity(...this.#handshakes)
    }
    get messageHash(){
       return this.#message_hash;
@@ -195,6 +179,26 @@ async function hmacWebBuffer(key, msg, sha){
       await hmacKey(key, sha),
       msg// await crypto.subtle.digest(`SHA-${sha}`, msg)
    )
+}
+
+export function parseItems(copy, start, lengthOf, Fn, option = {}) {
+   if (start + lengthOf > copy.length) {
+      throw new RangeError("Specified length exceeds available data.");
+   }
+   const { parser= null, store= new Set(), storeset = (store, data)=>{store.set(data.key, data.value)} } = option
+   if (!(store instanceof Set || store instanceof Map || store instanceof Array)) {
+      throw new TypeError("store must be an instance of Set, Map, or Array.");
+   }
+
+   let offset = start;
+   while ((offset < lengthOf + start) && (offset < copy.length)) {
+      const item = Fn.from(copy.subarray(offset)); offset += item.length;
+      if (parser) parser(item)
+      if (store instanceof Set) store.add(item);
+      else if (store instanceof Map) storeset(store, item);
+      else store.push(item)
+   }
+   return store
 }
 
 
